@@ -1,0 +1,14 @@
+################################################################################
+# HA definition of shell services 
+# Services are run remotely through ssh. It needs that keys are set-up on both HA and remote machine
+# Remote user is named "id"
+# Commands suppose to return 0 on success and 1 on failure
+# Beside, some commands return data in 'stderr' and 'stdout'
+################################################################################
+
+shell_command:
+  charging_wake: "ssh -i /config/keys/id_rsa -o 'StrictHostKeyChecking=no' id@192.168.0.120 /home/id/go/bin/tesla-ble/charging_wake.sh"
+  charging_start: "ssh -i /config/keys/id_rsa -o 'StrictHostKeyChecking=no' id@192.168.0.120 /home/id/go/bin/tesla-ble/charging_start.sh"
+  charging_stop: "ssh -i /config/keys/id_rsa -o 'StrictHostKeyChecking=no' id@192.168.0.120 /home/id/go/bin/tesla-ble/charging_stop.sh"
+  charging_set_amps: "ssh -i /config/keys/id_rsa id@192.168.0.120 /home/id/go/bin/tesla-ble/charging_set_amps.sh {{ amps }}"
+  charging_get_presence: "ssh -i /config/keys/id_rsa -o 'StrictHostKeyChecking=no' id@192.168.0.120 /home/id/go/bin/tesla-ble/charging_get_presence.sh"

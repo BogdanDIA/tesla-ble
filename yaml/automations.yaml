@@ -1,0 +1,16 @@
+################################################################################
+# Start the charging script upon HA (re)start or when the helper is turned on 
+# It uses input_boolean.teslab_charging_auto_ble helper to start/stop the script 
+################################################################################
+- id: car_status_charging_automation_ble
+  alias: 'car_status_charging_automation_ble'
+  trigger:
+    - platform: homeassistant
+      event: start
+    - platform: state
+      entity_id: input_boolean.teslab_charging_auto_ble
+  condition: []
+  action:
+    - service: script.turn_{{ 'on' if is_state('input_boolean.teslab_charging_auto_ble', 'on') else 'off' }}
+      target:
+        entity_id: script.car_charging_automation_ble_script

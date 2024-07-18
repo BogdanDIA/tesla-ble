@@ -1,0 +1,66 @@
+################################################################################
+# HA example script that cycles while waiting for car to be in BLE range.
+# Next it sets the charging Amps. On actions, errors are checked and acted accordingly
+# Script updates the following HA helpers:
+# - input_boolean.teslab_ble_presence  <- holds car's presence status
+# - input_text.teslab_ble_rssi <- holds car's RSSI value or Car not present 
+# - input_number.teslab_amps_set <- holds the set Amps 
+# Note: the presence check interval is 3min
+################################################################################
+
+car_charging_automation_ble_script:
+  alias: 'car_charging_automation_ble_script'
+  mode: restart
+  sequence:
+    - repeat:
+        while: "{{ true }}"
+        sequence:
+          - repeat:
+              sequence:
+                - service: shell_command.charging_get_presence
+                  response_variable: v_resp_var
+                  continue_on_error: true
+                - service_template: >-
+                    input_boolean.turn_{{ 'on' if (v_resp_var['returncode'] == 0) else 'off' }}
+                  target:
+                    entity_id: input_boolean.teslab_ble_presence
+                - service_template: input_text.set_value
+                  target:
+                    entity_id: input_text.teslab_ble_rssi
+                  data:
+                    value: "{{ v_resp_var['stderr'] }}"
+                - delay:
+                    hours: 0
+                    minutes: "{{ 0 if is_state('input_boolean.teslab_ble_presence', 'on') else 3 }}"
+                    seconds: 0
+              until: >-
+                {{ is_state('input_boolean.teslab_ble_presence', 'on') }}
+
+          - variables:
+              v_charge_I: >-
+                {{ states('input_number.teslab_amps_set')|float(0) }} # keep the old set Amps
+              v_charge_ISet: >-
+                {% set charge_ISet = v_charge_I + delta_Amps #TODO calculate delta based on the PV excess production %}
+                {{ charge_ISet|int(0) }}
+
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ v_charge_I != v_charge_ISet }}"
+                  - condition: state
+                    entity_id: input_boolean.teslab_ble_presence
+                    state: "on"
+                sequence:
+                  - service: shell_command.charging_set_amps
+                    response_variable: v_resp_var
+                    continue_on_error: true
+                    data:
+                      amps: >-
+                        {{ v_charge_ISet }}
+                  - service_template: input_number.set_value
+                    data_template:
+                      entity_id: input_number.teslab_amps_set
+                      value: "{{ v_charge_ISet if (v_resp_var['returncode'] == 0) else v_charge_I }}"
+
+           - delay: "00:03:00"
+
