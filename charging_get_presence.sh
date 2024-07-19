@@ -64,7 +64,7 @@ echo "Burst end" | tee -a charging-log.txt
 
 if [[ -n "$INFORSSI" ]]; then
 	echo Car Present | tee -a charging-log.txt
-	echo "$INFORSSI" >&2
+	echo "$INFORSSI dBm" >&2
 	exit 0
 else
 	echo Car Not Present | tee -a charging-log.txt
