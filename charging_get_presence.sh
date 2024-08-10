@@ -32,11 +32,44 @@ echo DEVICES_TIMEOUT: $DEVICES_TIMEOUT | tee -a charging-log.txt
 echo LOOP_COUNT: $LOOP_COUNT | tee -a charging-log.txt
 echo SCAN_TIMEOUT: "$SCAN_TIMEOUT" | tee -a charging-log.txt
 
+echo Going to reset HCI | tee -a charging-log.txt
+
+# obtain the default controller index, for hciconfig
+HCINUM=$(bluetoothctl list | wc -l)
+HCINUM=hci$(($HCINUM-1))
+echo HCI index: "$HCINUM" | tee -a charging-log.txt
+ 
+# reset Host Controller 
+INFORESET=""
+RESETRET=""
+for (( i=0; i<$LOOP_COUNT; i++ ))
+{
+  INFORESET=$(hciconfig $HCINUM reset 2>&1)
+  if [ $? -eq 0 ];then
+    echo try: $i, Ok | tee -a charging-log.txt
+    RESETRET=0
+    break
+  else
+    echo try: $i, Fail, $INFORESET | tee -a charging-log.txt
+    RESETRET=1
+  fi
+}
+
+if [ ! $RESETRET -eq 0 ];then
+  echo $INFORESET | tee -a charging-log.txt
+  echo "Cannot reset HCI", Exiting...  | tee -a charging-log.txt
+  echo "Cannot reset HCI" >&2
+  exit 1
+else
+  echo Successfully reset HCI | tee -a charging-log.txt
+fi
+
 # start scan
 bluetoothctl --timeout "$SCAN_TIMEOUT" scan on > /dev/zero 2>&1 &
 
 INFOMAC=""
 INFORSSI=""
+echo Starting get_presence | tee -a charging-log.txt
 for (( i=0; i<$LOOP_COUNT; i++ ))
 do
   DEVICES=$(bluetoothctl --timeout "$DEVICES_TIMEOUT" devices | grep "$BLE_LOCAL_NAME")
@@ -50,7 +83,7 @@ do
 
     INFORSSI=$(bluetoothctl --timeout 1 info "$INFOMAC" | grep RSSI)
     if [[ -n "$INFORSSI" ]]; then
-      break;
+      break
     fi
   fi
 done
