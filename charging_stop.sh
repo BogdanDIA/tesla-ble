@@ -26,14 +26,14 @@ else
 fi
 
 CMD_OUT=""
-CMD_STATUS=""
+CMD_STAT=""
 
 for (( i=0; i<5; i++ ))
 do
   CMD_OUT=$(./tesla-control -vin "$VIN" -key-file "private_key.pem" -ble charging-stop 2>&1)
-  CMD_STATUS="$?"
+  CMD_STAT="$?"
 
-  if [[ "$CMD_STATUS" -eq 0 ]]; then
+  if [[ "$CMD_STAT" -eq 0 ]]; then
     echo Ok: try: $i, CMD_OUT: "$CMD_OUT" | tee -a charging-log.txt
     break
   else
@@ -42,12 +42,12 @@ do
   sleep 1
 done
 
-echo CMD_OUT: "$CMD_OUT"
 echo CMD_STAT: "$CMD_STAT"
+echo CMD_OUT: "$CMD_OUT"
 
 echo "Burst end" | tee -a charging-log.txt
 
-if [[ "$CMD_STATUS" -eq 0 ]]; then
+if [[ "$CMD_STAT" -eq 0 ]]; then
   echo Car charging-stop success | tee -a charging-log.txt
   exit 0
 else
