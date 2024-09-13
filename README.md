@@ -26,7 +26,9 @@ VIN=YOUR-VIN
 PRIVATE_KEY=private_key.pem
 BIN_PATH=/home/`whoami`/go/bin/ #<-this is where the tesla-control is placed
 SCRIPTS_PATH=/home/`whoami`/go/bin/tesla-ble/ #<-this is where the tesla-ble is cloned
+COMMAND_TIMEOUT=55 <-later addition of timeout
 ```
+Timeout support has been added so that the commands will be closed after a speciffic timeout. This is necessary in case long lasting commands are still running while new commands are executed.
 
 3. run tesla-ble/check-configuration.sh script to see if everything is correctly setup.
 
