@@ -127,7 +127,7 @@ STATUS=$?
 echo "$OUT"
 
 if [[ ! STATUS -eq 0 ]]; then
-  echo "Command Timeout Fail" | tee -a charging-log.txt
+  echo "Fail - Command Timeout" | tee -a charging-log.txt
   echo "Command Timeout" >&2
 fi
 exit "$STATUS"
