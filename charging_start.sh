@@ -3,6 +3,7 @@
 
 # load config
 . $(dirname "$0")/tesla-ble.conf
+cd "$BIN_PATH"
 
 charging_start()
 {
