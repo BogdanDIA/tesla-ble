@@ -106,11 +106,13 @@ charging_get_presence()
   if [[ -n "$INFORSSI" ]]; then
     echo Car Present | tee -a charging-log.txt
     echo "$INFORSSI dBm" >&2
-    return 0
+    # we use exit so that bluetoothctl closes 
+    exit 0
   else
     echo Car Not Present | tee -a charging-log.txt
     echo "Car Not Present" >&2
-    return 1
+    # we use exit so that bluetoothctl closes 
+    exit 1
   fi
 }
 
