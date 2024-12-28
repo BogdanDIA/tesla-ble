@@ -73,7 +73,8 @@ charging_get_presence()
   fi
 
   # start scan
-  bluetoothctl --timeout "$SCAN_TIMEOUT" scan on > /dev/zero 2>&1 &
+  echo Starting bluetoothctl scan on | tee -a charging-log.txt
+  bluetoothctl --timeout "$SCAN_TIMEOUT" scan on 2>&1 | tee -a charging-log.txt &
 
   INFOMAC=""
   INFORSSI=""
@@ -99,7 +100,10 @@ charging_get_presence()
   echo MAC: "$INFOMAC" | tee -a charging-log.txt
   echo RSSI: "$INFORSSI" | tee -a charging-log.txt
 
-  bluetoothctl --timeout 1 scan off > /dev/zero 2>&1
+  echo Starting bluetoothctl scan off | tee -a charging-log.txt
+  bluetoothctl --timeout 1 scan off 2>&1 | tee -a charging-log.txt
+
+  killall -SIGTERM bluetoothctl
 
   echo "Burst end" | tee -a charging-log.txt
 
@@ -107,12 +111,12 @@ charging_get_presence()
     echo Car Present | tee -a charging-log.txt
     echo "$INFORSSI dBm" >&2
     # we use exit so that bluetoothctl closes 
-    exit 0
+    return 0
   else
     echo Car Not Present | tee -a charging-log.txt
     echo "Car Not Present" >&2
     # we use exit so that bluetoothctl closes 
-    exit 1
+    return 1
   fi
 }
 
@@ -127,6 +131,7 @@ fi
 OUT=$(timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_get_presence")
 STATUS=$?
 echo "$OUT"
+wait
 
 if [[ ! STATUS -eq 0 ]]; then
   echo "Fail - Command Timeout" | tee -a charging-log.txt

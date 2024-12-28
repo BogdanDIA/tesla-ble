@@ -74,10 +74,10 @@ charging_set_amps()
 
   if [[ "$CMD_STAT" -eq 0 ]]; then
     echo Car Charging set to $1 Amps success | tee -a charging-log.txt
-    return 0
+    exit 0
   else
     echo Car Charging Set to $1 Amps failed | tee -a charging-log.txt
-    return 1
+    exit 1
   fi 
 }
 
@@ -88,10 +88,11 @@ if [[ ! $COMMAND_TIMEOUT =~ ^[0-9]+$ ]]; then
   COMMAND_TIMEOUT=0
 fi
   
-# return after the timeout period
+# return after timeout period
 OUT=$(timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_set_amps $1")
 STATUS=$?
 echo "$OUT"
+wait
 
 if [[ ! STATUS -eq 0 ]]; then
   echo "Fail - Command Timeout" | tee -a charging-log.txt

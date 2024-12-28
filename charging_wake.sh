@@ -22,7 +22,7 @@ charging_wake()
   if [[ -n $VIN ]];then
     echo VIN provided | tee -a charging-log.txt
   else
-    echo no VIN provided in tesla-config.conf. Exiting... | tee -a charging-log.txt
+    echo no VIN provided in tesla-ble.conf. Exiting... | tee -a charging-log.txt
   fi
 
   if [[ -n $PRIVATE_KEY ]];then
@@ -53,10 +53,10 @@ charging_wake()
 
   if [[ $CMD_STAT -eq 0 ]]; then
     echo Car wake success | tee -a charging-log.txt
-    return 0
+    exit 0
   else
     echo Car wake failed | tee -a charging-log.txt
-    return 1
+    exit 1
   fi
 }
 

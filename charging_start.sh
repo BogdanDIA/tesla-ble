@@ -1,7 +1,6 @@
 #!/bin/bash
 #BogdanDIA
 
-# load config
 . $(dirname "$0")/tesla-ble.conf
 cd "$BIN_PATH"
 
@@ -56,10 +55,10 @@ charging_start()
 
   if [[ "$CMD_STAT" -eq 0 ]]; then
     echo Car charging-start success | tee -a charging-log.txt
-    return 0
+    exit 0
   else
     echo Car charging-start failed | tee -a charging-log.txt
-    return 1
+    exit 1
   fi
 }
 
@@ -74,11 +73,11 @@ fi
 OUT=$(timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_start")
 STATUS=$?
 echo "$OUT"
+wait
 
 if [[ ! STATUS -eq 0 ]]; then
   echo "Fail - Command Timeout" | tee -a charging-log.txt
   echo "Command Timeout" >&2
 fi
 exit "$STATUS" 
-"charging_get_presence.sh" 131 lines, 3720 bytes written
 
