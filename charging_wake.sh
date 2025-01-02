@@ -68,7 +68,7 @@ if [[ ! $COMMAND_TIMEOUT =~ ^[0-9]+$ ]]; then
 fi
   
 # return after the timeout period
-OUT=$(timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_wake")
+OUT=$(timeout -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_wake")
 STATUS=$?
 echo "$OUT"
   
