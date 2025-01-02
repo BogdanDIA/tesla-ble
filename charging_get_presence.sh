@@ -8,6 +8,7 @@ charging_get_presence()
 {
   # load config  
   . $(dirname "$0")/tesla-ble.conf
+  . $SCRIPTS_PATH/ble-name.sh
 
   # cd to BIN_PATH
   cd "$BIN_PATH"
@@ -28,7 +29,9 @@ charging_get_presence()
   fi
 
   # calculate BLE Local Name for which we want the MAC
-  BLE_LOCAL_NAME=$(python $SCRIPTS_PATH/ble-name.py $VIN)
+  #BLE_LOCAL_NAME=$(python $SCRIPTS_PATH/ble-name.py $VIN)
+  BLE_LOCAL_NAME=$(ble-name $VIN)
+
   echo BLE_LOCAL_NAME: $BLE_LOCAL_NAME | tee -a charging-log.txt
 
   # timeouts et all
