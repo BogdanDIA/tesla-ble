@@ -37,7 +37,7 @@ charging_stop()
 
   for (( i=0; i<5; i++ ))
   do
-    CMD_OUT=$(./tesla-control -vin "$VIN" -key-file "private_key.pem" -ble charging-stop 2>&1)
+    CMD_OUT=$(./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble charging-stop 2>&1)
     CMD_STAT="$?"
 
     if [[ "$CMD_STAT" -eq 0 ]]; then
