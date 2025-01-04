@@ -1,5 +1,6 @@
-#!/bin/bash
-# BogdanDIA
+#!/command/with-contenv bashio
+. /app/libproduct.sh
+# Copyright BogdanDIA
 
 if [[ "$#" -eq 0 ]]; then
   echo No parameter passed, exiting...

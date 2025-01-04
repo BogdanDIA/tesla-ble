@@ -1,5 +1,6 @@
-#!/bin/bash
-# BogdanDIA
+#!/command/with-contenv bashio
+. /app/libproduct.sh
+# Copyright BogdanDIA
 
 . $(dirname "$0")/tesla-ble.conf
 cd "$BIN_PATH"

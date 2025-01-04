@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/command/with-contenv bashio
+. /app/libproduct.sh
 # BogdanDIA
 
 . $(dirname "$0")/tesla-ble.conf
