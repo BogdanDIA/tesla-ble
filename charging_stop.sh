@@ -48,8 +48,8 @@ charging_stop()
     sleep 1
   done
 
-  echo CMD_STAT: "$CMD_STAT"
-  echo CMD_OUT: "$CMD_OUT"
+  #echo CMD_STAT: "$CMD_STAT"
+  #echo CMD_OUT: "$CMD_OUT"
 
   echo "Burst end" | tee -a charging-log.txt
 
@@ -75,7 +75,7 @@ STATUS=$?
 echo "$OUT"
 wait
 
-if [[ ! STATUS -eq 0 ]]; then
+if [[ ! $STATUS -eq 0 ]]; then
   echo "Fail - Command Timeout" | tee -a charging-log.txt
   echo "Command Timeout" >&2
 fi

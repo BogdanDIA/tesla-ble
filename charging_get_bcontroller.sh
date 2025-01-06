@@ -38,7 +38,7 @@ charging_get_presence()
 
   for (( i=0; i<5; i++ ))
   do
-    CMD_OUT=$(./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state)
+    CMD_OUT=$(./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state 2>&1)
     CMD_STAT="$?"
     if [[ "$CMD_STAT" -eq 0 ]]; then
       echo Ok: try: $i, CMD_OUT: "$CMD_OUT" | tee -a charging-log.txt
@@ -48,8 +48,8 @@ charging_get_presence()
     fi
   done
 
-  echo CMD_OUT: "$CMD_OUT"
-  echo CMD_STAT: "$CMD_STAT"
+  #echo CMD_OUT: "$CMD_OUT"
+  #echo CMD_STAT: "$CMD_STAT"
 
   echo "Burst end" | tee -a charging-log.txt
 
@@ -75,8 +75,9 @@ fi
 OUT=$(timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_get_presence")
 STATUS=$?
 echo "$OUT"
+wait
 
-if [[ ! STATUS -eq 0 ]]; then
+if [[ ! $STATUS -eq 0 ]]; then
   echo "Fail - Command Timeout" | tee -a charging-log.txt
   echo "Command Timeout" >&2
 fi
