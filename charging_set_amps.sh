@@ -90,8 +90,10 @@ if [[ ! $COMMAND_TIMEOUT =~ ^[0-9]+$ ]]; then
 fi
   
 # return after timeout period
+set +e
 OUT=$(timeout -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_set_amps $1")
 STATUS=$?
+set -e
 echo "$OUT"
 wait
 

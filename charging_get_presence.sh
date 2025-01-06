@@ -132,8 +132,10 @@ if [[ ! $COMMAND_TIMEOUT =~ ^[0-9]+$ ]]; then
 fi
 
 # return after the timeout period
+set +e
 OUT=$(timeout -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_get_presence")
 STATUS=$?
+set -e
 echo "$OUT"
 wait
 
