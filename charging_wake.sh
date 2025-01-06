@@ -54,10 +54,10 @@ charging_wake()
 
   if [[ $CMD_STAT -eq 0 ]]; then
     echo Car wake success | tee -a charging-log.txt
-    exit 0
+    return 0
   else
     echo Car wake failed | tee -a charging-log.txt
-    exit 1
+    return 1
   fi
 }
 
@@ -74,7 +74,7 @@ STATUS=$?
 echo "$OUT"
 wait
   
-if [[ ! STATUS -eq 0 ]]; then
+if [[ ! $STATUS -eq 0 ]]; then
   echo "Fail - Command Timeout" | tee -a charging-log.txt
   echo "Command Timeout" >&2
 fi

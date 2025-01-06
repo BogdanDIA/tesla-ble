@@ -49,17 +49,17 @@ charging_start()
     sleep 1
   done
 
-  echo CMD_STAT: "$CMD_STAT"
-  echo CMD_OUT: "$CMD_OUT"
+  #echo CMD_STAT: "$CMD_STAT"
+  #echo CMD_OUT: "$CMD_OUT"
 
   echo "Burst end" | tee -a charging-log.txt
 
   if [[ "$CMD_STAT" -eq 0 ]]; then
     echo Car charging-start success | tee -a charging-log.txt
-    exit 0
+    return 0
   else
     echo Car charging-start failed | tee -a charging-log.txt
-    exit 1
+    return 1
   fi
 }
 
@@ -76,7 +76,7 @@ STATUS=$?
 echo "$OUT"
 wait
 
-if [[ ! STATUS -eq 0 ]]; then
+if [[ ! $STATUS -eq 0 ]]; then
   echo "Fail - Command Timeout" | tee -a charging-log.txt
   echo "Command Timeout" >&2
 fi
