@@ -2,86 +2,83 @@
 . /app/libproduct.sh
 # BogdanDIA
 
-. $(dirname "$0")/tesla-ble.conf
-cd "$BIN_PATH"
+CPATH=$(dirname "$0")/tesla-ble.conf
+. $CPATH 
+. ${SCRIPTS_PATH}/log-def.sh
 
-charging_get_presence()
+charging_get_bcontroller()
 {
-  # load config  
-  . $(dirname "$0")/tesla-ble.conf
+  app() {
+    ./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state
+    STATUS=$?
+    return $STATUS
+  }
+
+  # load log definition  
+  . ${SCRIPTS_PATH}/log-def.sh
 
   # cd to BIN_PATH
   cd "$BIN_PATH"
-  echo "" | tee -a charging-log.txt
-  echo "`date` get-bcontroller" | tee -a charging-log.txt
-  echo "BIN_PATH: $BIN_PATH" | tee -a charging-log.txt
-  echo "VIN: $VIN" | tee -a charging-log.txt
-  echo "PWD: `pwd`" | tee -a charging-log.txt
-  echo "SCRIPTS_PATH: $SCRIPTS_PATH" | tee -a charging-log.txt
-  echo "COMMAND_TIMEOUT: $COMMAND_TIMEOUT" | tee -a charging-log.txt
+  log ""
+  log "`date` get-bcontroller"
+  log "BIN_PATH: $BIN_PATH"
+  log "VIN: $VIN"
+  log "PWD: `pwd`"
+  log "SCRIPTS_PATH: $SCRIPTS_PATH"
+  log "COMMAND_TIMEOUT: $COMMAND_TIMEOUT"
 
-  echo "Burst start" | tee -a charging-log.txt
+  log "Burst start"
 
   if [[ -n $VIN ]]; then
-    echo VIN provided | tee -a charging-log.txt
+    log "VIN provided"
   else
-    echo no VIN provided in tesla-config.conf. Exiting... | tee -a charging-log.txt
+    log "no VIN provided in tesla-ble.conf. Exiting..."
   fi
 
   if [[ -n $PRIVATE_KEY ]];then
-    echo PRIVATE_KEY provided | tee -a charging-log.txt
+    log "PRIVATE_KEY provided"
   else
-    echo no PRIVATE_KEY provided in tesla-config.conf. Exiting... | tee -a charging-log.txt
+    log "no PRIVATE_KEY provided in tesla-ble.conf. Exiting..."
   fi
 
-  CMD_OUT=""
   CMD_STAT=""
 
   for (( i=0; i<5; i++ ))
   do
-    CMD_OUT=$(./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state 2>&1)
-    CMD_STAT="$?"
-    if [[ "$CMD_STAT" -eq 0 ]]; then
-      echo Ok: try: $i, CMD_OUT: "$CMD_OUT" | tee -a charging-log.txt
+    app 2> >(tee -a charging-log.txt >&2) 1> >(tee -a charging-log.txt >&1)
+    CMD_STAT=$?
+
+    if [[ $CMD_STAT -eq 0 ]]; then
+      log "Ok: try: $i"
       break
     else
-      echo Fail: try: $i, CMD_OUT: "$CMD_OUT" | tee -a charging-log.txt
+      log "Fail: try: $i"
     fi
   done
 
-  #echo CMD_OUT: "$CMD_OUT"
-  #echo CMD_STAT: "$CMD_STAT"
-
-  echo "Burst end" | tee -a charging-log.txt
-
-  if [[ "$CMD_STAT" -eq 0 ]]; then
-    echo Command get-bcontroller success | tee -a charging-log.txt
-    echo "$CMD_OUT" >&2
-    return 0
-  else
-    echo Command get-bcontroller fail | tee -a charging-log.txt
-    echo "Command get_bcontroller fail" >&2
-    return 1
-  fi
+  log "Burst end"
+  return $CMD_STAT
 }
 
-export -f charging_get_presence
+export -f charging_get_bcontroller
 
 # set the default value if the initial definition is not correct
 if [[ ! $COMMAND_TIMEOUT =~ ^[0-9]+$ ]]; then
   COMMAND_TIMEOUT=0
 fi
 
-# return after timeout period
+# return after timeout period. Load config upon executing function 
 set +e
-OUT=$(timeout -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_get_presence")
+timeout -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c ". ${SCRIPTS_PATH}/tesla-ble.conf; charging_get_bcontroller"
 STATUS=$?
 set -e
-echo "$OUT"
 wait
 
-if [[ ! $STATUS -eq 0 ]]; then
-  echo "Fail - Command Timeout" | tee -a charging-log.txt
-  echo "Command Timeout" >&2
+if [[ $STATUS -eq 0 ]]; then
+  log "Command get-bcontroller success"
+elif [[ $STATUS -eq 137 ]]; then
+  log "Fail - Command Timeout"
+else
+  log "Command get-bcontroller fail"
 fi
 exit "$STATUS"
