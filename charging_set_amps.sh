@@ -4,36 +4,45 @@
 if [[ "$#" -eq 0 ]]; then
   echo No parameter passed, exiting...
   exit 1
-fi 
+fi  
 
-. $(dirname "$0")/tesla-ble.conf
-cd "$BIN_PATH"
+CPATH=$(dirname "$0")/tesla-ble.conf
+. $CPATH 
+. ${SCRIPTS_PATH}/log-def.sh
 
 charging_set_amps()
 {
-  # load config
-  . $(dirname "$0")/tesla-ble.conf
+  app() {
+    ./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble charging-set-amps $1 
+    STATUS=$?
+    return $STATUS
+  }
+
+  # load log definition  
+  . ${SCRIPTS_PATH}/log-def.sh
+
   # cd to BIN_PATH
   cd "$BIN_PATH"
-  echo "" | tee -a charging-log.txt
-  echo "`date` set-amps $1 Amps" | tee -a charging-log.txt
-  echo "BIN_PATH: $BIN_PATH" | tee -a charging-log.txt
-  echo "VIN: $VIN" | tee -a charging-log.txt
-  echo "PWD: `pwd`" | tee -a charging-log.txt
-  echo "SCRIPTS_PATH: $SCRIPTS_PATH" | tee -a charging-log.txt
-  echo "COMMAND_TIMEOUT: $COMMAND_TIMEOUT" | tee -a charging-log.txt
-  echo "Burst start" | tee -a charging-log.txt
+  log ""
+  log "`date` set-amps $1 Amps"
+  log "BIN_PATH: $BIN_PATH"
+  log "VIN: $VIN"
+  log "PWD: `pwd`"
+  log "SCRIPTS_PATH: $SCRIPTS_PATH"
+  log "COMMAND_TIMEOUT: $COMMAND_TIMEOUT"
+
+  log "Burst start"
 
   if [[ -n $VIN ]]; then
-    echo VIN provided | tee -a charging-log.txt
+    log "VIN provided"
   else
-    echo no VIN provided in tesla-config.conf. Exiting... | tee -a charging-log.txt
+    log "no VIN provided in tesla-ble.conf. Exiting..."
   fi
 
   if [[ -n $PRIVATE_KEY ]];then
-    echo PRIVATE_KEY provided | tee -a charging-log.txt
+    log "PRIVATE_KEY provided"
   else
-    echo no PRIVATE_KEY provided in tesla-config.conf. Exiting... | tee -a charging-log.txt
+    log "no PRIVATE_KEY provided in tesla-ble.conf. Exiting..."
   fi
 
   CMD_STAT=-1
@@ -44,20 +53,20 @@ charging_set_amps()
   do
     for (( i=0; i<5; i++ ))
     do
-      TMP_OUT=$(./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble charging-set-amps "$1" 2>&1)
-      TMP_STAT="$?"
+      app $1 2> >(tee -a charging-log.txt >&2) 1> >(tee -a charging-log.txt >&1)
+      TMP_STAT=$?
 
       if [[ "$TMP_STAT" -eq 0 ]]; then
-        echo Ok count: $count, try: $i, TMP_OUT: "$TMP_OUT" | tee -a charging-log.txt
+        log "Ok count: $count, try: $i"
         break
       else
-        echo Fail count: $count, try: $i, TMP_OUT: "$TMP_OUT" | tee -a charging-log.txt
+        log "Fail count: $count, try: $i"
       fi
     done
 
     # AND the status for both loops 
     CMD_STAT=$(($CMD_STAT & $TMP_STAT))
-    echo count: $count, CMD_STAT: $CMD_STAT | tee -a charging-log.txt
+    log "count: $count, CMD_STAT: $CMD_STAT"
 
     # if first loop fails then we quit 
     if [[ $count -eq 0 ]] && [[ "$CMD_STAT" -ne 0 ]]; then
@@ -70,32 +79,27 @@ charging_set_amps()
     fi
   done
 
-  echo "Burst end" | tee -a charging-log.txt
-
-  if [[ "$CMD_STAT" -eq 0 ]]; then
-    echo Car Charging set to $1 Amps success | tee -a charging-log.txt
-    exit 0
-  else
-    echo Car Charging Set to $1 Amps failed | tee -a charging-log.txt
-    exit 1
-  fi 
+  log "Burst end"
+  return $CMD_STAT
 }
 
 export -f charging_set_amps
-  
+
 # set the default value if the initial definition is not correct
 if [[ ! $COMMAND_TIMEOUT =~ ^[0-9]+$ ]]; then
   COMMAND_TIMEOUT=0
 fi
-  
-# return after timeout period
-OUT=$(timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c "charging_set_amps $1")
+
+# return after timeout period. Load config upon executing function 
+timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c ". ${SCRIPTS_PATH}/tesla-ble.conf; charging_set_amps $1"
 STATUS=$?
-echo "$OUT"
 wait
 
-if [[ ! $STATUS -eq 0 ]]; then
-  echo "Fail - Command Timeout" | tee -a charging-log.txt
-  echo "Command Timeout" >&2
+if [[ $STATUS -eq 0 ]]; then
+  log "Command set-amps $1 Amps success"
+elif [[ $STATUS -eq 137 ]]; then
+  log "Fail - Command Timeout"
+else
+  log "Command set-amps $1 Amps fail"
 fi
 exit "$STATUS"
