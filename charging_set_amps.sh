@@ -98,6 +98,8 @@ STATUS=$?
 set -e
 wait
 
+log "$STATUS"
+
 if [[ $STATUS -eq 0 ]]; then
   log "Command set-amps $1 Amps success"
 elif [[ $STATUS -eq 137 ]]; then
