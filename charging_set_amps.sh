@@ -95,6 +95,8 @@ timeout --preserve-status -k 1 -s SIGKILL "$COMMAND_TIMEOUT" bash -c ". ${SCRIPT
 STATUS=$?
 wait
 
+log "STATUS: $STATUS"
+
 if [[ $STATUS -eq 0 ]]; then
   log "Command set-amps $1 Amps success"
 elif [[ $STATUS -eq 137 ]]; then
