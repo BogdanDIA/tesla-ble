@@ -54,7 +54,7 @@ charging_get_presence()
   HCINUM=$(($HCINUM-1))
 
   # allways use the default if a wrong HCI index is provided
-  if [[ $HCINUM -gt $HCI_NUM ]]; then
+  if [[ ($HCI_NUM -ge 0) && ($HCINUM -gt $HCI_NUM) ]]; then
     HCINUM=$HCI_NUM
   fi
 
