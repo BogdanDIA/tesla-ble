@@ -138,7 +138,7 @@ STATUS=$?
 set -e
 wait
 
-log "$STATUS"
+log "STATUS: $STATUS"
 
 if [[ $STATUS -eq 0 ]]; then
   log "Command get-presence success"
