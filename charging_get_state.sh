@@ -30,6 +30,7 @@ charging_get_state()
   log "`date` get-state"
   log "BIN_PATH: $BIN_PATH"
   log "VIN: $VIN"
+  log "HCINUM: $HCINUM"
   log "PWD: `pwd`"
   log "SCRIPTS_PATH: $SCRIPTS_PATH"
   log "COMMAND_TIMEOUT: $COMMAND_TIMEOUT"
