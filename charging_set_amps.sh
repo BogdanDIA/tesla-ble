@@ -35,7 +35,7 @@ charging_set_amps()
   log "`date` set-amps $1 Amps"
   log "BIN_PATH: $BIN_PATH"
   log "VIN: $VIN"
-  log "HCINUM: $HCINUM"
+  log "HCI_NUM: $HCI_NUM"
   log "PWD: `pwd`"
   log "SCRIPTS_PATH: $SCRIPTS_PATH"
   log "COMMAND_TIMEOUT: $COMMAND_TIMEOUT"

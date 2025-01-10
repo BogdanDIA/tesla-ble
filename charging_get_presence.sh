@@ -54,7 +54,7 @@ charging_get_presence()
 
   # set BT Controller Number
   export HCINUM=$HCI_NUM
-  log "HCINUM: $HCINUM"
+  log "HCI_NUM: $HCI_NUM"
    
   # reset Host Controller 
   INFORESET=""

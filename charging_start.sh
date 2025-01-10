@@ -30,7 +30,7 @@ charging_start()
   log "`date` charging-start"
   log "BIN_PATH: $BIN_PATH"
   log "VIN: $VIN"
-  log "HCINUM: $HCINUM"
+  log "HCI_NUM: $HCI_NUM"
   log "PWD: `pwd`"
   log "SCRIPTS_PATH: $SCRIPTS_PATH"
   log "COMMAND_TIMEOUT: $COMMAND_TIMEOUT"
