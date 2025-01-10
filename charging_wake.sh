@@ -8,7 +8,11 @@ CPATH=$(dirname "$0")/tesla-ble.conf
 charging_wake()
 {
   app() {
-    ./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble wake
+    # set timeouts commands
+    CMD_TMO="-command-timeout $BLE_CMD_TIMEOUT -connect-timeout $BLE_CONN_TIMEOUT"
+
+    # run command
+    ./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble wake
     STATUS=$?
     return $STATUS
   }
