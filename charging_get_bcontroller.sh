@@ -9,7 +9,11 @@ CPATH=$(dirname "$0")/tesla-ble.conf
 charging_get_bcontroller()
 {
   app() {
-    ./tesla-control -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state
+    # set timeouts variable
+    CMD_TMO="-command-timeout $BLE_CMD_TIMEOUT -connect-timeout $BLE_CONN_TIMEOUT"
+
+    # run command
+    ./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state
     STATUS=$?
     return $STATUS
   }
