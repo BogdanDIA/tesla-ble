@@ -48,9 +48,12 @@ charging_get_presence()
 
   log "Going to reset HCI"
 
-  # obtain the default controller index, for hciconfig
-  HCINUM=$(bluetoothctl list | wc -l)
-  HCINUM=hci$(($HCINUM-1))
+  # not used - obtain the default controller index, for hciconfig
+  #HCINUM=$(bluetoothctl list | wc -l)
+  #HCINUM=hci$(($HCINUM-1))
+
+  # set BT Controller Number
+  export HCINUM=$HCI_NUM
   log "HCI index: $HCINUM"
    
   # reset Host Controller 

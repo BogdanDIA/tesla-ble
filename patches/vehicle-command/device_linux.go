@@ -4,11 +4,13 @@ import (
   "github.com/go-ble/ble"
   "github.com/go-ble/ble/linux"
   "github.com/go-ble/ble/linux/hci/cmd"
+  "os"
+  "strconv"
   "time"
 )
 
 const bleTimeout = 20 * time.Second
-const bleDevice = 1
+//const bleDevice = 0
 
 // TODO: Depending on the model and state, BLE advertisements come every 20ms or every 150ms.
 
@@ -36,10 +38,18 @@ var createConnection = cmd.LECreateConnection{
 }
 
 func newDevice() (ble.Device, error) {
-  device, err := linux.NewDevice(ble.OptDeviceID(bleDevice), ble.OptListenerTimeout(bleTimeout), ble.OptDialerTimeout(bleTimeout), ble.OptScanParams(scanParams),
-   ble.OptConnParams(createConnection))
+  bleDevice, err := strconv.Atoi(os.Getenv("HCINUM"))
+
+  if err != nil{
+    bleDevice = -1
+  }
+
+  device, err := linux.NewDevice(ble.OptDeviceID(bleDevice), ble.OptListenerTimeout(bleTimeout), ble.OptDialerTimeout(bleTimeout), ble.OptScanParams(scanParams), ble.OptConnParams(createConnection))
+
   if err != nil {
     return nil, err
   }
+
   return device, nil
 }
+
