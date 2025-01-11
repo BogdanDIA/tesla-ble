@@ -18,6 +18,7 @@ charging_get_presence()
   log "`date` get-presence"
   log "BIN_PATH: $BIN_PATH"
   log "VIN: $VIN"
+  log "HCI_NUM: $HCI_NUM"
   log "PWD: `pwd`"
   log "SCRIPTS_PATH: $SCRIPTS_PATH"
   log "COMMAND_TIMEOUT: $COMMAND_TIMEOUT"
@@ -49,15 +50,21 @@ charging_get_presence()
 
   # obtain the default controller index, for hciconfig
   HCINUM=$(bluetoothctl list | wc -l)
-  HCINUM=hci$(($HCINUM-1))
-  log "HCI index: $HCINUM"
+  HCINUM=$(($HCINUM-1))
+
+  # allways use the default if a wrong HCI index is provided
+  if [[ ($HCI_NUM -ge 0) && ($HCINUM -gt $HCI_NUM) ]]; then
+    HCINUM=$HCI_NUM
+  fi
+
+  log "HCINUM: $HCINUM"
    
   # reset Host Controller 
   INFORESET=""
   RESETRET=""
   for (( i=0; i<$LOOP_COUNT; i++ ))
   {
-    INFORESET=$(hciconfig $HCINUM reset 1>&2)
+    INFORESET=$(hciconfig hci{HCINUM} reset 1>&2)
     if [ $? -eq 0 ];then
       log "try: $i, Ok"
       RESETRET=0

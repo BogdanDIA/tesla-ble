@@ -11,6 +11,9 @@ charging_get_state()
     # set timeouts variable
     CMD_TMO="-command-timeout $BLE_CMD_TIMEOUT -connect-timeout $BLE_CONN_TIMEOUT"
 
+    # set BT Controller Number
+    export HCINUM=$HCI_NUM
+
     # run command
     ./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble state charge
     STATUS=$?
@@ -26,6 +29,7 @@ charging_get_state()
   log "`date` get-state"
   log "BIN_PATH: $BIN_PATH"
   log "VIN: $VIN"
+  log "HCI_NUM: $HCI_NUM"
   log "PWD: `pwd`"
   log "SCRIPTS_PATH: $SCRIPTS_PATH"
   log "COMMAND_TIMEOUT: $COMMAND_TIMEOUT"

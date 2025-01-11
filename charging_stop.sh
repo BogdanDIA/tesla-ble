@@ -8,10 +8,13 @@ CPATH=$(dirname "$0")/tesla-ble.conf
 charging_stop()
 {
   app() {
-    # set timeouts variable
-    CMD_TMO="-command-timeout $BLE_CMD_TIMEOUT -connect-timeout $BLE_CONN_TIMEOUT"
+    # set timeouts variable                                                       
+    CMD_TMO="-command-timeout $BLE_CMD_TIMEOUT -connect-timeout $BLE_CONN_TIMEOUT"  
 
-    # run command
+    # set BT Controller Number
+    export HCINUM=$HCI_NUM
+
+    # run command                                                                   
     ./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble charging-stop
     STATUS=$?
     return $STATUS
