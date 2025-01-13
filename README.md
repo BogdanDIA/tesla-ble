@@ -11,28 +11,31 @@ https://github.com/teslamotors/vehicle-command/blob/main/README.md
 
 ## **Install and Run**
 
-0. When built and installed, the **vehicle-command** package will provide a set of executable commands placed by default in a $home/go/bin directory.
+<b>1.</b> When built and installed, the **vehicle-command** package will provide a set of executable commands placed by default in a $home/go/bin directory.
 
 All scrips are using **tesla-control** executable found in go/bin/ that is the main entry point to the go package.
 At this point we assume the the **vehicle-command** has been built with the instructions above and **tesla-control** executable exists in /home/id/go/bin/ assuming the user name is "id". 
 
-1. clone https://github.com/BogdanDIA/tesla-ble/ somewhere on the filesystem:
-2. update tesla-ble/tesla-ble.conf with your information:
+<b>2.</b> clone https://github.com/BogdanDIA/tesla-ble/ somewhere on the filesystem:
+<b>3.</b> update tesla-ble/tesla-ble.conf with your information:
 
 ```
 tesla-ble.conf:
 
-VIN=YOUR-VIN
-PRIVATE_KEY=private_key.pem
-BIN_PATH=/home/`whoami`/go/bin/ #<-this is where the tesla-control is placed
-SCRIPTS_PATH=/home/`whoami`/go/bin/tesla-ble/ #<-this is where the tesla-ble is cloned
-COMMAND_TIMEOUT=55 <-later addition of timeout
+VIN=X1122334455667788                           # car's VIN
+PRIVATE_KEY=private_key.pem                     # car's private key
+HCI_NUM=1                                       # BT controller number
+BLE_CMD_TIMEOUT=10s                             # tesla-control command timeout
+BLE_CONN_TIMEOUT=20s                            # tesla-control connect timeout
+BIN_PATH=/home/`whoami`/go/bin/                 # directory where tesla-control is placed
+SCRIPTS_PATH=/home/`whoami`/go/bin/tesla-ble/   # directory this is where tesla-ble is cloned
+COMMAND_TIMEOUT=55                              # overall timeout 
 ```
-Timeout support has been added so that the commands will be closed after a speciffic timeout. This is necessary in case long lasting commands are still running while new commands are executed.
+Overall timeout support has been added so that the commands will be closed after a speciffic period. This is necessary in case long lasting commands are still running while new commands are executed.
 
-3. run tesla-ble/check-configuration.sh script to see if everything is correctly setup.
+<b>4.</b> run tesla-ble/check-configuration.sh script to see if everything is correctly setup.
 
-4. run ./charging_get_presence.sh
+<b>5.</b> run ./tesla-ble/charging_get_presence.sh
 
 When the car is present, it should give an output like the following:
 
@@ -57,10 +60,14 @@ Burst end
 Car Present
 ```
 
-If all above worked, now the rest of commands should work as well, e.g setting 3 Amps charging current:
+If all above worked, now the rest of commands should work as well:
 
 ```
-./charging_set_amps 3
+cd tesla-ble
+./charging_set_amps.sh 3
+./charging_get_bcontroller.sh
+./charging_set_state.sh
+...
 ```
 
 **Note 1:**
