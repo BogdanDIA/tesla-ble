@@ -20,8 +20,16 @@ charging_set_amps()
     export HCINUM=$HCI_NUM
 
     #run command
-    ./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble charging-set-amps $1
+    OUT=$(./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble charging-set-amps $1)
     STATUS=$?
+
+    # for case when return not zero but output is on stdout
+    if [[ $STATUS -eq 0 ]]; then
+      echo "$OUT" >&1
+    else
+      echo "$OUT" >&2
+    fi
+
     return $STATUS
   }
 

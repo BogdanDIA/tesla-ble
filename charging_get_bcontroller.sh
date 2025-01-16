@@ -15,8 +15,16 @@ charging_get_bcontroller()
     export HCINUM=$HCI_NUM
 
     # run command
-    ./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state
+    OUT=$(./tesla-control $CMD_TMO -vin "$VIN" -key-file "$PRIVATE_KEY" -ble -domain vcsec body-controller-state)
     STATUS=$?
+
+    # for case when return not zero but output is on stdout
+    if [[ $STATUS -eq 0 ]]; then
+      echo "$OUT" >&1
+    else
+      echo "$OUT" >&2
+    fi
+
     return $STATUS
   }
 
