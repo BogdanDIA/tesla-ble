@@ -106,6 +106,9 @@ charging_get_presence()
       INFORSSI=$(bluetoothctl --timeout 1 info "$INFOMAC" | grep RSSI)
       if [[ -n "$INFORSSI" ]]; then
         break
+      else
+        log "try: $i, remove $INFOMAC"
+        bluetoothctl --timeout 1 remove "$INFOMAC"
       fi
     fi
   done
