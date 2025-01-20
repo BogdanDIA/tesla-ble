@@ -59,12 +59,13 @@ charging_get_presence()
 
   log "HCINUM: $HCINUM"
    
-  # reset Host Controller 
+  # reset Host Controller
   INFORESET=""
   RESETRET=""
   for (( i=0; i<$LOOP_COUNT; i++ ))
   {
-    INFORESET=$(hciconfig hci{HCINUM} reset 1>&2)
+    log "hci${HCINUM} reset"
+    INFORESET=$(hciconfig hci${HCINUM} reset 2>&1)
     if [ $? -eq 0 ];then
       log "try: $i, Ok"
       RESETRET=0
@@ -75,13 +76,13 @@ charging_get_presence()
     fi
   }
 
-  if [ ! $RESETRET -eq 0 ];then
+  if [[ $RESETRET -eq 0 ]]; then
+    log "Successfully reset HCI"
+  else
     log "$INFORESET"
     log "Cannot reset HCI, Exiting..."
     log "Cannot reset HCI" >&1
     exit 1
-  else
-    log "Successfully reset HCI"
   fi
 
   # start scan
