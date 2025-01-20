@@ -66,7 +66,7 @@ charging_get_presence()
   {
     log "hci${HCINUM} reset"
     INFORESET=$(hciconfig hci${HCINUM} reset 2>&1)
-    if [ $? -eq 0 ];then
+    if [ $? -eq 0 ]; then
       log "try: $i, Ok"
       RESETRET=0
       break
@@ -98,7 +98,7 @@ charging_get_presence()
     log "try: $i, DEVICES: $DEVICES"
 
     if [[ -n "$DEVICES" ]]; then
-      log "try: $i, Matched car\'s BLE name"
+      log "try: $i, Matched car's BLE name"
 
       INFOMAC=$(echo "$DEVICES" | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}')
       log "try: $i, INFOMAC: $INFOMAC"
