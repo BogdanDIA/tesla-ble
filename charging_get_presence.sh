@@ -52,10 +52,11 @@ charging_get_presence()
   HCINUM=$(bluetoothctl list | wc -l)
   HCINUM=$(($HCINUM-1))
 
-  # allways use the default if a wrong HCI index is provided
-  if [[ ($HCI_NUM -ge 0) && ($HCINUM -gt $HCI_NUM) ]]; then
+  # OLD - allways use the default if a wrong HCI index is provided
+  # Use HCI user provided in config
+  #if [[ ($HCI_NUM -ge 0) && ($HCINUM -gt $HCI_NUM) ]]; then
     HCINUM=$HCI_NUM
-  fi
+  #fi
 
   log "HCINUM: $HCINUM"
    
