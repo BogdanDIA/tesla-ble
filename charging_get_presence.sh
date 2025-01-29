@@ -58,19 +58,33 @@ charging_get_presence()
   #fi
 
   log "HCINUM: $HCINUM"
-
-  log "Going to reset HCI"
-  for (( i=0; i<3; i++ ))
+   
+  # reset Host Controller
+  INFORESET=""
+  RESETRET=""
+  for (( i=0; i<$LOOP_COUNT; i++ ))
   {
-    hciconfig hci${HCINUM} reset
-    if [[ $? -eq 0 ]]; then
-      log "try: $i, HCI reset Ok"
+    log "hci${HCINUM} reset"
+    INFORESET=$(hciconfig hci${HCINUM} reset 2>&1)
+    if [ $? -eq 0 ]; then
+      log "try: $i, Ok"
+      RESETRET=0
       break
     else
-      log "try: $i, HCI reset Fail"
+      log "try: $i, Fail, $INFORESET"
+      RESETRET=1
     fi
     sleep 1
   }
+
+  if [[ $RESETRET -eq 0 ]]; then
+    log "Successfully reset HCI"
+  else
+    log "$INFORESET"
+    log "Cannot reset HCI, Exiting..."
+    log "Cannot reset HCI" >&1
+    exit 1
+  fi
 
   # start scan
   log "Starting bluetoothctl scan on"
