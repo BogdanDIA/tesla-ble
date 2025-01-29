@@ -110,6 +110,15 @@ charging_get_presence()
       else
         log "try: $i, remove $INFOMAC"
         bluetoothctl --timeout 1 remove "$INFOMAC"
+
+        log "Going to reset HCI"
+        hciconfig hci${HCINUM} reset
+        if [[ $? -eq 0 ]]; then
+          log "try: $i, HCI reset Ok"
+        else
+          log: "try: $i, HCI reset Fail"
+        fi
+        bluetoothctl --timeout "$SCAN_TIMEOUT" scan on 1>&2 &
       fi
     fi
   done
