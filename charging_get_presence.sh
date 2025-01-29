@@ -75,6 +75,7 @@ charging_get_presence()
       log "try: $i, Fail, $INFORESET"
       RESETRET=1
     fi
+    sleep 1
   }
 
   if [[ $RESETRET -eq 0 ]]; then
