@@ -47,8 +47,6 @@ charging_get_presence()
   log "LOOP_COUNT: $LOOP_COUNT"
   log "SCAN_TIMEOUT: $SCAN_TIMEOUT"
 
-  log "Going to reset HCI"
-
   # obtain the default controller index, for hciconfig
   HCINUM=$(bluetoothctl list | wc -l)
   HCINUM=$(($HCINUM-1))
@@ -61,31 +59,18 @@ charging_get_presence()
 
   log "HCINUM: $HCINUM"
 
-  # reset Host Controller
-  INFORESET=""
-  RESETRET=0
-  for (( i=0; i<$LOOP_COUNT; i++ ))
+  log "Going to reset HCI"
+  for (( i=0; i<3; i++ ))
   {
-    log "hci${HCINUM} reset"
-    INFORESET=$(hciconfig hci${HCINUM} reset 2>&1)
-    if [ $? -eq 0 ]; then
-      log "try: $i, Ok"
-      RESETRET=0
+    hciconfig hci${HCINUM} reset
+    if [[ $? -eq 0 ]]; then
+      log "try: $i, HCI reset Ok"
       break
     else
-      log "try: $i, Fail, $INFORESET"
-      RESETRET=1
+      log "try: $i, HCI reset Fail"
     fi
+    sleep 1
   }
-
-  if [[ $RESETRET -eq 0 ]]; then
-    log "Successfully reset HCI"
-  else
-    log "$INFORESET"
-    log "Cannot reset HCI, Exiting..."
-    log "Cannot reset HCI" >&1
-    exit 1
-  fi
 
   # start scan
   log "Starting bluetoothctl scan on"
@@ -111,6 +96,15 @@ charging_get_presence()
       else
         log "try: $i, remove $INFOMAC"
         bluetoothctl --timeout 1 remove "$INFOMAC"
+
+        log "Going to reset hci"
+        hciconfig hci${HCINUM} reset
+        if [[ $? -eq 0 ]]; then
+          log "try: $i, HCI reset Ok"
+        else
+          log: "try: $i, HCI reset Fail"
+        fi
+        bluetoothctl --timeout "$SCAN_TIMEOUT" scan on 1>&2 &
       fi
     fi
   done
