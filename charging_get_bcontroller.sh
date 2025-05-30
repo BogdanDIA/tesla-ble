@@ -96,7 +96,9 @@ if [[ $STATUS -eq 0 ]]; then
   log "Command get-bcontroller success"
 elif [[ $STATUS -eq 137 ]]; then
   log "Fail - Command Timeout"
+  killall -9 tesla-control
 else
   log "Command get-bcontroller fail"
+  killall -9 tesla-control
 fi
 exit "$STATUS"
