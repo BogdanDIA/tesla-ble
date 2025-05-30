@@ -163,7 +163,9 @@ if [[ $STATUS -eq 0 ]]; then
   log "Command get-presence success"
 elif [[ $STATUS -eq 137 ]]; then
   log "Fail - Command Timeout"
+  killall -9 tesla-control
 else
   log "Command get-presence fail"
+  killall -9 tesla-control
 fi
 exit "$STATUS"
