@@ -35,11 +35,27 @@ var scanParams = cmd.LESetScanParameters{
 	ScanningFilterPolicy: 0,    // Change from 0x02 to 0, Basic filtered - support for BT4.x
 }
 
+var createConnection = cmd.LECreateConnection{
+  LEScanInterval:        0x0010,    // 0x0004 - 0x4000; N * 0.625 msec
+  LEScanWindow:          0x0010,    // 0x0004 - 0x4000; N * 0.625 msec
+  InitiatorFilterPolicy: 0x00,      // White list is not used
+  PeerAddressType:       0x00,      // Public Device Address
+  PeerAddress:           [6]byte{}, //
+  OwnAddressType:        0x00,      // Public Device Address
+  ConnIntervalMin:       0x0006,    // 0x0006 - 0x0C80; N * 1.25 msec
+  ConnIntervalMax:       0x0006,    // 0x0006 - 0x0C80; N * 1.25 msec
+  ConnLatency:           0x0000,    // 0x0000 - 0x01F3; N * 1.25 msec
+  SupervisionTimeout:    0x0048,    // 0x000A - 0x0C80; N * 10 msec
+  MinimumCELength:       0x0000,    // 0x0000 - 0xFFFF; N * 0.625 msec
+  MaximumCELength:       0x0000,    // 0x0000 - 0xFFFF; N * 0.625 msec
+}
+
 func newAdapter(id *string) (ble.Device, error) {
 	opts := []ble.Option{
 		ble.OptDialerTimeout(bleTimeout),
 		ble.OptListenerTimeout(bleTimeout),
 		ble.OptScanParams(scanParams),
+		ble.OptConnParams(createConnection),
 	}
 	if id != nil && *id != "" {
 		if !strings.HasPrefix(*id, "hci") {
